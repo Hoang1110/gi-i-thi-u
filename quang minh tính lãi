@@ -1,0 +1,58 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: FutureMoneyApp());
+  }
+}
+
+class FutureMoneyApp extends StatefulWidget {
+  const FutureMoneyApp({super.key});
+
+  @override
+  State<FutureMoneyApp> createState() => _FutureMoneyAppState();
+}
+
+class _FutureMoneyAppState extends State<FutureMoneyApp> {
+  final money = TextEditingController();
+  final rate = TextEditingController();
+  final year = TextEditingController();
+
+  double result = 0;
+
+  void calculate() {
+    double m = double.tryParse(money.text) ?? 0;
+    double r = (double.tryParse(rate.text) ?? 0) / 100;
+    double y = double.tryParse(year.text) ?? 0;
+
+    setState(() {
+      result = m * pow(1 + r, y);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Tiền sau N năm")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: money, decoration: const InputDecoration(labelText: "Số tiền")),
+            TextField(controller: rate, decoration: const InputDecoration(labelText: "Lãi suất (%)")),
+            TextField(controller: year, decoration: const InputDecoration(labelText: "Số năm")),
+            const SizedBox(height: 10),
+            Text("Kết quả: ${result.toStringAsFixed(2)}"),
+            ElevatedButton(onPressed: calculate, child: const Text("Tính"))
+          ],
+        ),
+      ),
+    );
+  }
+}
