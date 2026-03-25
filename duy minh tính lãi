@@ -1,0 +1,53 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: FindRateApp());
+  }
+}
+
+class FindRateApp extends StatefulWidget {
+  const FindRateApp({super.key});
+
+  @override
+  State<FindRateApp> createState() => _FindRateAppState();
+}
+
+class _FindRateAppState extends State<FindRateApp> {
+  final year = TextEditingController();
+  double rate = 0;
+
+  void calculate() {
+    double y = double.tryParse(year.text) ?? 0;
+
+    if (y > 0) {
+      setState(() {
+        rate = (pow(2, 1 / y) - 1) * 100;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Tìm lãi suất")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: year, decoration: const InputDecoration(labelText: "Số năm")),
+            const SizedBox(height: 10),
+            Text("Lãi suất cần: ${rate.toStringAsFixed(2)}%"),
+            ElevatedButton(onPressed: calculate, child: const Text("Tính"))
+          ],
+        ),
+      ),
+    );
+  }
+}
