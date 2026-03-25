@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: SimpleInterestApp());
+  }
+}
+
+class SimpleInterestApp extends StatefulWidget {
+  const SimpleInterestApp({super.key});
+
+  @override
+  State<SimpleInterestApp> createState() => _SimpleInterestAppState();
+}
+
+class _SimpleInterestAppState extends State<SimpleInterestApp> {
+  final money = TextEditingController();
+  final rate = TextEditingController();
+  final time = TextEditingController();
+
+  double interest = 0;
+
+  void calculate() {
+    double m = double.tryParse(money.text) ?? 0;
+    double r = (double.tryParse(rate.text) ?? 0) / 100;
+    double t = double.tryParse(time.text) ?? 0;
+
+    setState(() {
+      interest = m * r * t;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Lãi đơn")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: money, decoration: const InputDecoration(labelText: "Số tiền")),
+            TextField(controller: rate, decoration: const InputDecoration(labelText: "Lãi suất (%)")),
+            TextField(controller: time, decoration: const InputDecoration(labelText: "Số năm")),
+            const SizedBox(height: 10),
+            Text("Tiền lãi: ${interest.toStringAsFixed(2)}"),
+            ElevatedButton(onPressed: calculate, child: const Text("Tính"))
+          ],
+        ),
+      ),
+    );
+  }
+}
