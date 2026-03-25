@@ -1,4 +1,6 @@
+
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,21 +12,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const FancyFinanceApp(),
+      home: NeonFinanceApp(),
     );
   }
 }
 
-class FancyFinanceApp extends StatefulWidget {
-  const FancyFinanceApp({super.key});
+class NeonFinanceApp extends StatefulWidget {
+  const NeonFinanceApp({super.key});
 
   @override
-  State<FancyFinanceApp> createState() => _FancyFinanceAppState();
+  State<NeonFinanceApp> createState() => _NeonFinanceAppState();
 }
 
-class _FancyFinanceAppState extends State<FancyFinanceApp> {
+class _NeonFinanceAppState extends State<NeonFinanceApp> {
   final money = TextEditingController();
   final rate = TextEditingController();
 
@@ -43,79 +45,93 @@ class _FancyFinanceAppState extends State<FancyFinanceApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.purple, Colors.blue, Colors.cyan],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                "💰 Smart Finance",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+      body: Stack(
+        children: [
+          // nền gradient neon
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black, Colors.deepPurple, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              const SizedBox(height: 20),
+            ),
+          ),
 
-              Expanded(
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
+                  width: 320,
                   padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(30),
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: Colors.white24),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      const Text(
+                        "⚡ Neon Finance",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
                       TextField(
                         controller: money,
+                        style: const TextStyle(color: Colors.white),
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: "Số tiền",
-                          prefixIcon: const Icon(Icons.account_balance_wallet),
-                          border: OutlineInputBorder(
+                          hintText: "Số tiền",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon: const Icon(Icons.money, color: Colors.cyan),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.cyan),
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 15),
 
                       TextField(
                         controller: rate,
+                        style: const TextStyle(color: Colors.white),
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText: "Lãi suất (%)",
-                          prefixIcon: const Icon(Icons.trending_up),
-                          border: OutlineInputBorder(
+                          hintText: "Lãi suất (%)",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon: const Icon(Icons.show_chart, color: Colors.pink),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.pink),
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 25),
+
+                      const SizedBox(height: 20),
 
                       GestureDetector(
                         onTap: calculate,
                         child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Colors.orange, Colors.red],
+                              colors: [Colors.cyan, Colors.pink],
                             ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Center(
                             child: Text(
-                              "TÍNH NGAY 🚀",
+                              "CALCULATE",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -125,40 +141,25 @@ class _FancyFinanceAppState extends State<FancyFinanceApp> {
                         ),
                       ),
 
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 25),
 
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(20),
+                      Text(
+                        "${years.toStringAsFixed(2)} năm",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.cyanAccent,
                         ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Kết quả",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              "${years.toStringAsFixed(2)} năm",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
+                      ),
                     ],
                   ),
                 ),
-              )
-            ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
+
