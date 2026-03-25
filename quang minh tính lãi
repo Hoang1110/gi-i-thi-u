@@ -1,56 +1,120 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: FutureMoneyApp());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: Colors.blue),
+      home: const DoubleMoneyUI(),
+    );
   }
 }
 
-class FutureMoneyApp extends StatefulWidget {
-  const FutureMoneyApp({super.key});
+class DoubleMoneyUI extends StatefulWidget {
+  const DoubleMoneyUI({super.key});
 
   @override
-  State<FutureMoneyApp> createState() => _FutureMoneyAppState();
+  State<DoubleMoneyUI> createState() => _DoubleMoneyUIState();
 }
 
-class _FutureMoneyAppState extends State<FutureMoneyApp> {
-  final money = TextEditingController();
-  final rate = TextEditingController();
-  final year = TextEditingController();
+class _DoubleMoneyUIState extends State<DoubleMoneyUI> {
+  final moneyController = TextEditingController();
+  final rateController = TextEditingController();
 
-  double result = 0;
+  double years = 0;
 
   void calculate() {
-    double m = double.tryParse(money.text) ?? 0;
-    double r = (double.tryParse(rate.text) ?? 0) / 100;
-    double y = double.tryParse(year.text) ?? 0;
+    double money = double.tryParse(moneyController.text) ?? 0;
+    double rate = double.tryParse(rateController.text) ?? 0;
 
-    setState(() {
-      result = m * pow(1 + r, y);
-    });
+    if (money > 0 && rate > 0) {
+      double r = rate / 100;
+      setState(() {
+        years = log(2) / log(1 + r);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tiền sau N năm")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(controller: money, decoration: const InputDecoration(labelText: "Số tiền")),
-            TextField(controller: rate, decoration: const InputDecoration(labelText: "Lãi suất (%)")),
-            TextField(controller: year, decoration: const InputDecoration(labelText: "Số năm")),
-            const SizedBox(height: 10),
-            Text("Kết quả: ${result.toStringAsFixed(2)}"),
-            ElevatedButton(onPressed: calculate, child: const Text("Tính"))
-          ],
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text("💰 Double Money Calculator"),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          margin: const EdgeInsets.all(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Tính số năm để tiền gấp đôi",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                TextField(
+                  controller: moneyController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Số tiền ban đầu",
+                    prefixIcon: Icon(Icons.attach_money),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                TextField(
+                  controller: rateController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: "Lãi suất (%)",
+                    prefixIcon: Icon(Icons.percent),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                ElevatedButton(
+                  onPressed: calculate,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(45),
+                  ),
+                  child: const Text("TÍNH NGAY"),
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  "⏱ ${years.toStringAsFixed(2)} năm",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
