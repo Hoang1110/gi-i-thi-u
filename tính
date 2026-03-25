@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,37 +13,30 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DoubleMoneyApp(),
+      home: NeonFinanceApp(),
     );
   }
 }
 
-class DoubleMoneyApp extends StatefulWidget {
-  const DoubleMoneyApp({super.key});
+class NeonFinanceApp extends StatefulWidget {
+  const NeonFinanceApp({super.key});
 
   @override
-  State<DoubleMoneyApp> createState() => _DoubleMoneyAppState();
+  State<NeonFinanceApp> createState() => _NeonFinanceAppState();
 }
 
-class _DoubleMoneyAppState extends State<DoubleMoneyApp> {
-  final TextEditingController moneyController = TextEditingController();
-  final TextEditingController rateController = TextEditingController();
+class _NeonFinanceAppState extends State<NeonFinanceApp> {
+  final money = TextEditingController();
+  final rate = TextEditingController();
 
   double years = 0;
 
   void calculate() {
-    double money = double.tryParse(moneyController.text) ?? 0;
-    double rate = double.tryParse(rateController.text) ?? 0;
+    double r = (double.tryParse(rate.text) ?? 0) / 100;
 
-    if (money > 0 && rate > 0) {
-      double r = rate / 100;
-
+    if (r > 0) {
       setState(() {
         years = log(2) / log(1 + r);
-      });
-    } else {
-      setState(() {
-        years = 0;
       });
     }
   }
@@ -50,52 +44,119 @@ class _DoubleMoneyAppState extends State<DoubleMoneyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Máy tính lãi suất"),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Số tiền"),
-            const SizedBox(height: 5),
-            TextField(
-              controller: moneyController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+      body: Stack(
+        children: [
+          // nền gradient neon
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black, Colors.deepPurple, Colors.blue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            const SizedBox(height: 15),
+          ),
 
-            const Text("Lãi suất năm"),
-            const SizedBox(height: 5),
-            TextField(
-              controller: rateController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: 320,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "⚡ Neon Finance",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        controller: money,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: "Số tiền",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon: const Icon(Icons.money, color: Colors.cyan),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.cyan),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      TextField(
+                        controller: rate,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: "Lãi suất (%)",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon: const Icon(Icons.show_chart, color: Colors.pink),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.pink),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      GestureDetector(
+                        onTap: calculate,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.cyan, Colors.pink],
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "CALCULATE",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      Text(
+                        "${years.toStringAsFixed(2)} năm",
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.cyanAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-
-            Text(
-              "Số năm để tiền gấp đôi là: ${years.toStringAsFixed(2)} năm",
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: calculate,
-                child: const Text("Tính toán"),
-              ),
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
