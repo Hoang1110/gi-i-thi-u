@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/home_page.dart';
 
+//Sau comment
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
