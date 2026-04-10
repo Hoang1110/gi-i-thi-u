@@ -1,0 +1,237 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+void main() {
+  runApp(MyApp());
+}
+
+class Task {
+  String name;
+  DateTime time;
+  String location;
+  String type; // bell | email
+
+  Task(this.name, this.time, this.location, this.type);
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: TaskScreen(),
+    );
+  }
+}
+
+class TaskScreen extends StatefulWidget {
+  @override
+  _TaskScreenState createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
+  List<Task> tasks = [];
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // check mỗi giây
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
+      final now = DateTime.now();
+
+      for (var t in tasks) {
+        if ((now.difference(t.time).inSeconds).abs() < 1) {
+          showReminder(t);
+        }
+      }
+    });
+  }
+
+  void showReminder(Task t) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("🔔 Nhắc việc"),
+        content: Text(
+            "${t.name}\n${t.type == "bell" ? "🔔 Đổ chuông!" : "📧 Gửi email!"}"),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"))
+        ],
+      ),
+    );
+  }
+
+  void addTask() async {
+    String name = "";
+    String location = "";
+    String type = "bell";
+    DateTime? selectedDateTime;
+
+    await showDialog(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              title: Text("Thêm công việc"),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration:
+                          InputDecoration(labelText: "Tên công việc"),
+                      onChanged: (v) => name = v,
+                    ),
+                    TextField(
+                      decoration: InputDecoration(labelText: "Địa điểm"),
+                      onChanged: (v) => location = v,
+                    ),
+                    SizedBox(height: 10),
+
+                    ElevatedButton(
+                      onPressed: () async {
+                        DateTime? date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+
+                        if (date != null) {
+                          TimeOfDay? time = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+);
+
+                          if (time != null) {
+                            selectedDateTime = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              time.hour,
+                              time.minute,
+                            );
+                            setStateDialog(() {});
+                          }
+                        }
+                      },
+                      child: Text("Chọn ngày giờ"),
+                    ),
+
+                    if (selectedDateTime != null)
+                      Text(
+                          "⏰ ${selectedDateTime.toString().substring(0, 16)}"),
+
+                    SizedBox(height: 10),
+
+                    DropdownButton<String>(
+                      value: type,
+                      items: [
+                        DropdownMenuItem(
+                            value: "bell", child: Text("🔔 Nhắc bằng chuông")),
+                        DropdownMenuItem(
+                            value: "email", child: Text("📧 Nhắc bằng email")),
+                      ],
+                      onChanged: (v) {
+                        setStateDialog(() {
+                          type = v!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedDateTime != null) {
+                      setState(() {
+                        tasks.add(Task(
+                            name, selectedDateTime!, location, type));
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text("Lưu"),
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("To-do App 🔥"),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.purple, Colors.blue],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade50, Colors.purple.shade50],
+          ),
+        ),
+        child: ListView.builder(
+          padding: EdgeInsets.all(16),
+          itemCount: tasks.length,
+          itemBuilder: (_, i) {
+            final t = tasks[i];
+            return Container(
+              margin: EdgeInsets.only(bottom: 15),
+              padding: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+BoxShadow(
+                    color: Colors.grey.shade300,
+                    blurRadius: 8,
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.name,
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text("📍 ${t.location}"),
+                  Text("⏰ ${t.time.toString().substring(0, 16)}"),
+                  Text(
+                    t.type == "bell"
+                        ? "🔔 Chuông"
+                        : "📧 Email",
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: addTask,
+        child: Icon(Icons.add),
+        backgroundColor: Colors.purple,
+      ),
+    );
+  }
+}
